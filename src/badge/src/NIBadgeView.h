@@ -36,6 +36,8 @@
 @property (nonatomic, readwrite, copy) NSString* text;
 @property (nonatomic, readwrite, NI_STRONG) UIFont* font;
 @property (nonatomic, readwrite, NI_STRONG) UIColor* textColor;
+@property (nonatomic, readwrite, NI_STRONG) UIColor* borderColor;
+
 
 // Badge attributes
 @property (nonatomic, readwrite, NI_STRONG) UIColor* tintColor;
