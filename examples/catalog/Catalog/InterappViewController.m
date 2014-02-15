@@ -36,18 +36,14 @@
 //
 
 @interface InterappViewController () <UIDocumentInteractionControllerDelegate>
-@property (nonatomic, readwrite, retain) NITableViewModel* model;
-@property (nonatomic, readwrite, retain) NITableViewActions* actions;
-@property (nonatomic, readwrite, copy) NSURL* fileUrl;
-@property (nonatomic, readwrite, retain) UIDocumentInteractionController* docController;
+@property (nonatomic, retain) NITableViewModel* model;
+@property (nonatomic, retain) NITableViewActions* actions;
+@property (nonatomic, copy) NSURL* fileUrl;
+@property (nonatomic, retain) UIDocumentInteractionController* docController;
 @end
 
 @implementation InterappViewController
 
-@synthesize model = _model;
-@synthesize actions = _actions;
-@synthesize fileUrl = _fileUrl;
-@synthesize docController = _docController;
 
 - (void)cleanupDocController {
   [[NSFileManager defaultManager] removeItemAtURL:self.fileUrl error:nil];

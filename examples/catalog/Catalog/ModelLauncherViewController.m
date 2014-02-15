@@ -45,12 +45,11 @@
 //
 
 @interface ModelLauncherViewController () <NILauncherViewModelDelegate>
-@property (nonatomic, readwrite, retain) NILauncherViewModel* model;
+@property (nonatomic, retain) NILauncherViewModel* model;
 @end
 
 @implementation ModelLauncherViewController
 
-@synthesize model = _model;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
@@ -97,7 +96,12 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  
+
+  // iOS 7-only.
+  if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
+
   self.view.backgroundColor = [UIColor underPageBackgroundColor];
 
   // Because the model implements the NILauncherViewDataSource protocol we can simply assign the

@@ -37,12 +37,11 @@
 //
 
 @interface BlockCellsViewController ()
-@property (nonatomic, readwrite, retain) NITableViewModel* model;
+@property (nonatomic, retain) NITableViewModel* model;
 @end
 
 @implementation BlockCellsViewController
 
-@synthesize model = _model;
 
 - (id)initWithStyle:(UITableViewStyle)style {
   if ((self = [super initWithStyle:UITableViewStylePlain])) {

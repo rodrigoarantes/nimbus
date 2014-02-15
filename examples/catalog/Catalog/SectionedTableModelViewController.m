@@ -37,12 +37,11 @@
 //
 
 @interface SectionedTableModelViewController ()
-@property (nonatomic, readwrite, retain) NITableViewModel* model;
+@property (nonatomic, retain) NITableViewModel* model;
 @end
 
 @implementation SectionedTableModelViewController
 
-@synthesize model = _model;
 
 - (id)initWithStyle:(UITableViewStyle)style {
   if ((self = [super initWithStyle:UITableViewStyleGrouped])) {

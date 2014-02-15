@@ -20,7 +20,6 @@
 
 @implementation BadgedLauncherViewObject
 
-@synthesize badgeNumber = _badgeNumber;
 
 - (id)initWithTitle:(NSString *)title image:(UIImage *)image badgeNumber:(NSInteger)badgeNumber {
   if ((self = [super initWithTitle:title image:image])) {
@@ -41,7 +40,6 @@
 
 @implementation BadgedLauncherButtonView
 
-@synthesize badgeView = _badgeView;
 
 - (id)initWithReuseIdentifier:(NSString *)reuseIdentifier {
   if ((self = [super initWithReuseIdentifier:reuseIdentifier])) {
@@ -78,7 +76,7 @@
 - (void)shouldUpdateViewWithObject:(BadgedLauncherViewObject *)object {
   [super shouldUpdateViewWithObject:object];
 
-  NSInteger badgeNumber = boundi(object.badgeNumber, 0, 100);
+  NSInteger badgeNumber = NIBoundi(object.badgeNumber, 0, 100);
   if (object.badgeNumber > 0) {
     if (badgeNumber < 100) {
       self.badgeView.text = [NSString stringWithFormat:@"%d", badgeNumber];

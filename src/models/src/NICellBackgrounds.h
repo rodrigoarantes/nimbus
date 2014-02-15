@@ -17,12 +17,12 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "NIPreprocessorMacros.h" /* for NI_WEAK */
+#import "NIPreprocessorMacros.h" /* for weak */
 
 /**
  * The NIGroupedCellAppearance protocol provides support for each cell to adjust their appearance.
  *
- *      @ingroup TableCellBackgrounds
+ * @ingroup TableCellBackgrounds
  */
 @protocol NIGroupedCellAppearance <NSObject>
 
@@ -50,7 +50,7 @@ typedef enum {
  * The NIGroupedCellBackground class provides support for generating grouped UITableView cell
  * backgrounds.
  *
- *      @ingroup TableCellBackgrounds
+ * @ingroup TableCellBackgrounds
  */
 @interface NIGroupedCellBackground : NSObject
 
@@ -59,13 +59,13 @@ typedef enum {
 - (UIImage *)imageForFirst:(BOOL)first last:(BOOL)last highlighted:(BOOL)highlighted; // Default: drawDivider: True
 - (UIImage *)imageForFirst:(BOOL)first last:(BOOL)last highlighted:(BOOL)highlighted drawDivider:(BOOL)drawDivider;
 
-@property (nonatomic, NI_STRONG) UIColor* innerBackgroundColor; // Default: [UIColor whiteColor]
-@property (nonatomic, NI_STRONG) NSMutableArray* highlightedInnerGradientColors; // Default: RGBCOLOR(53, 141, 245), RGBCOLOR(16, 93, 230)
+@property (nonatomic, strong) UIColor* innerBackgroundColor; // Default: [UIColor whiteColor]
+@property (nonatomic, strong) NSMutableArray* highlightedInnerGradientColors; // Default: RGBCOLOR(53, 141, 245), RGBCOLOR(16, 93, 230)
 @property (nonatomic, assign) CGFloat shadowWidth; // Default: 4
 @property (nonatomic, assign) CGSize shadowOffset; // Default: CGSizeMake(0, 1)
-@property (nonatomic, NI_STRONG) UIColor* shadowColor; // Default: RGBACOLOR(0, 0, 0, 0.3)
-@property (nonatomic, NI_STRONG) UIColor* borderColor; // Default: RGBACOLOR(0, 0, 0, 0.07)
-@property (nonatomic, NI_STRONG) UIColor* dividerColor; // Default: RGBCOLOR(230, 230, 230)
+@property (nonatomic, strong) UIColor* shadowColor; // Default: RGBACOLOR(0, 0, 0, 0.3)
+@property (nonatomic, strong) UIColor* borderColor; // Default: RGBACOLOR(0, 0, 0, 0.07)
+@property (nonatomic, strong) UIColor* dividerColor; // Default: RGBCOLOR(230, 230, 230)
 @property (nonatomic, assign) CGFloat borderRadius; // Default: 5
 
 @end
@@ -76,9 +76,9 @@ typedef enum {
  * The returned image is cached internally after the first request. Changing any of the display
  * properties will invalidate the cached images.
  *
- *      @param first YES will round the top corners.
- *      @param last  YES will round the bottom corners.
- *      @param highlighed YES will fill the contents with the highlightedInnerGradientColors.
- *      @returns A UIImage representing the given configuration.
- *      @fn NIGroupedCellBackground::imageForFirst:last:highlighted:
+ * @param first YES will round the top corners.
+ * @param last  YES will round the bottom corners.
+ * @param highlighed YES will fill the contents with the highlightedInnerGradientColors.
+ * @returns A UIImage representing the given configuration.
+ * @fn NIGroupedCellBackground::imageForFirst:last:highlighted:
  */

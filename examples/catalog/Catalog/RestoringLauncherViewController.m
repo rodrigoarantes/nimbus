@@ -44,12 +44,11 @@
 //
 
 @interface RestoringLauncherViewController () <NILauncherViewModelDelegate>
-@property (nonatomic, readwrite, retain) NILauncherViewModel* model;
+@property (nonatomic, retain) NILauncherViewModel* model;
 @end
 
 @implementation RestoringLauncherViewController
 
-@synthesize model = _model;
 
 // We provide a consistent way to fetch the path to the launcher data.
 - (NSString *)pathForLauncherData {
@@ -89,6 +88,11 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+
+  // iOS 7-only.
+  if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
 
   self.view.backgroundColor = [UIColor underPageBackgroundColor];
 

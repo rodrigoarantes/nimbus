@@ -46,14 +46,12 @@ typedef enum {
 } RadioGroup;
 
 @interface ModalRadioGroupTableModelViewController () <NIRadioGroupDelegate>
-@property (nonatomic, readwrite, retain) NITableViewModel* model;
-@property (nonatomic, readwrite, retain) NIRadioGroup* radioGroup;
+@property (nonatomic, retain) NITableViewModel* model;
+@property (nonatomic, retain) NIRadioGroup* radioGroup;
 @end
 
 @implementation ModalRadioGroupTableModelViewController
 
-@synthesize model = _model;
-@synthesize radioGroup = _radioGroup;
 
 - (id)initWithStyle:(UITableViewStyle)style {
   if ((self = [super initWithStyle:UITableViewStyleGrouped])) {

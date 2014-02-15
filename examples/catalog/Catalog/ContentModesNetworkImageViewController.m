@@ -45,12 +45,11 @@ static const CGFloat kFramePadding = 10;
 static const CGFloat kImageSpacing = 5;
 
 @interface ContentModesNetworkImageViewController()
-@property (nonatomic, readwrite, copy) NSArray* networkImageViews;
+@property (nonatomic, copy) NSArray* networkImageViews;
 @end
 
 @implementation ContentModesNetworkImageViewController
 
-@synthesize networkImageViews = _networkImageViews;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
@@ -106,6 +105,10 @@ static const CGFloat kImageSpacing = 5;
 - (void)viewDidLoad {
   [super viewDidLoad];
 
+  // iOS 7-only.
+  if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
   self.view.backgroundColor = [UIColor underPageBackgroundColor];
 
   // We only want one network request to be able to fire off at a time because we know all of the

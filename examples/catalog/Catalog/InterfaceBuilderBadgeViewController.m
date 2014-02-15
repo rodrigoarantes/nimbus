@@ -38,14 +38,12 @@
 //
 
 @interface InterfaceBuilderBadgeViewController ()
-@property (nonatomic, readwrite, retain) IBOutlet NIBadgeView* badgeView;
-@property (nonatomic, readwrite, retain) IBOutlet NIBadgeView* badgeView2;
+@property (nonatomic, retain) IBOutlet NIBadgeView* badgeView;
+@property (nonatomic, retain) IBOutlet NIBadgeView* badgeView2;
 @end
 
 @implementation InterfaceBuilderBadgeViewController
 
-@synthesize badgeView;
-@synthesize badgeView2;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   if ((self = [super initWithNibName:@"ApplicationBadges" bundle:nibBundleOrNil])) {
@@ -56,6 +54,11 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
+
+  // iOS 7-only.
+  if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
 
   self.badgeView.text = @"2";
   self.badgeView2.text = @"4";

@@ -21,36 +21,21 @@
 #import "NimbusCore.h"
 #import "AFNetworking.h"
 #import "NIImageProcessing.h"
+#import "NIImageResponseSerializer.h"
 
 #if !defined(__has_feature) || !__has_feature(objc_arc)
 #error "Nimbus requires ARC support."
 #endif
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface NINetworkImageView()
-@property (nonatomic, readwrite, NI_STRONG) NSOperation* operation;
+@property (nonatomic, strong) NSOperation* operation;
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NINetworkImageView
 
-@synthesize operation               = _operation;
-@synthesize sizeForDisplay          = _sizeForDisplay;
-@synthesize scaleOptions            = _scaleOptions;
-@synthesize interpolationQuality    = _interpolationQuality;
-@synthesize imageMemoryCache        = _imageMemoryCache;
-@synthesize networkOperationQueue   = _networkOperationQueue;
-@synthesize maxAge                  = _maxAge;
-@synthesize initialImage            = _initialImage;
-@synthesize delegate                = _delegate;
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)cancelOperation {
   if ([self.operation isKindOfClass:[NIOperation class]]) {
     NIOperation* request = (NIOperation *)self.operation;
@@ -61,14 +46,10 @@
   [self.operation cancel];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   [self cancelOperation];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)assignDefaults {
   self.sizeForDisplay = YES;
   self.scaleOptions = NINetworkImageViewScaleToFitLeavesExcessAndScaleToFillCropsExcess;
@@ -78,8 +59,6 @@
   self.networkOperationQueue = [Nimbus networkOperationQueue];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithImage:(UIImage *)image {
   if ((self = [super initWithImage:image])) {
     [self assignDefaults];
@@ -90,8 +69,6 @@
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [self initWithImage:nil])) {
     self.frame = frame;
@@ -99,8 +76,6 @@
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithCoder:(NSCoder *)aDecoder {
   if ((self = [super initWithCoder:aDecoder])) {
     if (nil != self.image) {
@@ -111,14 +86,10 @@
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
   return [self initWithImage:nil];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString *)cacheKeyForCacheIdentifier:(NSString *)cacheIdentifier
                                imageSize:(CGSize)imageSize
                              contentMode:(UIViewContentMode)contentMode
@@ -141,14 +112,9 @@
   return cacheKey;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark Internal consistent implementation of state changes
+#pragma mark - Internal consistent implementation of state changes
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)_didStartLoading {
   if ([self.delegate respondsToSelector:@selector(networkImageViewDidStartLoad:)]) {
     [self.delegate networkImageViewDidStartLoad:self];
@@ -157,8 +123,6 @@
   [self networkImageViewDidStartLoading];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)_didFinishLoadingWithImage: (UIImage *)image
                    cacheIdentifier: (NSString *)cacheIdentifier
                        displaySize: (CGSize)displaySize
@@ -195,8 +159,6 @@
   [self networkImageViewDidLoadImage:image];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)_didFailToLoadWithError:(NSError *)error {
   self.operation = nil;
 
@@ -207,20 +169,13 @@
   [self networkImageViewDidFailWithError:error];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NIOperationDelegate
+#pragma mark - NIOperationDelegate
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)nimbusOperationDidStart:(NIOperation *)operation {
   [self _didStartLoading];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)nimbusOperationDidFinish:(NIOperation<NINetworkImageOperation> *)operation {
   [self _didFinishLoadingWithImage:operation.imageCroppedAndSizedForDisplay
                    cacheIdentifier:operation.cacheIdentifier
@@ -230,44 +185,28 @@
                     expirationDate:nil];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)nimbusOperationDidFail:(NIOperation *)operation withError:(NSError *)error {
   [self _didFailToLoadWithError:error];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark Subclassing
+#pragma mark - Subclassing
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)networkImageViewDidStartLoading {
   // No-op. Meant to be overridden.
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)networkImageViewDidLoadImage:(UIImage *)image {
   // No-op. Meant to be overridden.
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)networkImageViewDidFailWithError:(NSError *)error {
   // No-op. Meant to be overridden.
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark Public Methods
+#pragma mark - Public
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPathToNetworkImage:(NSString *)pathToNetworkImage {
   [self setPathToNetworkImage: pathToNetworkImage
                forDisplaySize: CGSizeZero
@@ -275,8 +214,6 @@
                      cropRect: CGRectZero];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPathToNetworkImage:(NSString *)pathToNetworkImage forDisplaySize:(CGSize)displaySize {
   [self setPathToNetworkImage: pathToNetworkImage
                forDisplaySize: displaySize
@@ -284,8 +221,6 @@
                      cropRect: CGRectZero];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPathToNetworkImage:(NSString *)pathToNetworkImage forDisplaySize:(CGSize)displaySize contentMode:(UIViewContentMode)contentMode {
   [self setPathToNetworkImage: pathToNetworkImage
                forDisplaySize: displaySize
@@ -293,8 +228,6 @@
                      cropRect: CGRectZero];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPathToNetworkImage:(NSString *)pathToNetworkImage cropRect:(CGRect)cropRect {
   [self setPathToNetworkImage: pathToNetworkImage
                forDisplaySize: CGSizeZero
@@ -302,8 +235,6 @@
                      cropRect: cropRect];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPathToNetworkImage:(NSString *)pathToNetworkImage contentMode:(UIViewContentMode)contentMode {
   [self setPathToNetworkImage: pathToNetworkImage
                forDisplaySize: CGSizeZero
@@ -311,8 +242,6 @@
                      cropRect: CGRectZero];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPathToNetworkImage:(NSString *)pathToNetworkImage forDisplaySize:(CGSize)displaySize contentMode:(UIViewContentMode)contentMode cropRect:(CGRect)cropRect {
   [self cancelOperation];
 
@@ -326,7 +255,7 @@
 
     } else {
       // Otherwise we assume it's a regular URL.
-      url = [NSURL URLWithString:pathToNetworkImage];
+      url = [NSURL URLWithString:[pathToNetworkImage stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     }
 
     // If the URL failed to be created, there's not much we can do here.
@@ -373,48 +302,46 @@
       }
 
       NSURLRequest *request = [NSURLRequest requestWithURL:url];
-      AFImageRequestOperation *operation =
-      [AFImageRequestOperation imageRequestOperationWithRequest:request imageProcessingBlock:
-       ^UIImage *(UIImage *downloadedImage) {
-         return [NIImageProcessing imageFromSource:downloadedImage
-                                   withContentMode:contentMode
-                                          cropRect:cropRect
-                                       displaySize:displaySize
-                                      scaleOptions:self.scaleOptions
-                              interpolationQuality:self.interpolationQuality];
 
-       } success:^(NSURLRequest *successfulRequest, NSHTTPURLResponse *response, UIImage *processedImage) {
-         [self _didFinishLoadingWithImage:processedImage
-                          cacheIdentifier:pathToNetworkImage
-                              displaySize:displaySize
-                              contentMode:contentMode
-                             scaleOptions:self.scaleOptions
-                           expirationDate:nil];
+      AFHTTPRequestOperation* requestOperation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
 
-       } failure:^(NSURLRequest *errorRequest, NSHTTPURLResponse *response, NSError *error) {
+      NIImageResponseSerializer* serializer = [NIImageResponseSerializer serializer];
+      // We handle image scaling ourselves in the image processing method, so we need to disable
+      // AFNetworking from doing so as well.
+      serializer.imageScale = 1;
+      serializer.contentMode = contentMode;
+      serializer.cropRect = cropRect;
+      serializer.displaySize = displaySize;
+      serializer.scaleOptions = self.scaleOptions;
+      serializer.interpolationQuality = self.interpolationQuality;
+      requestOperation.responseSerializer = serializer;
+
+      [requestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self _didFinishLoadingWithImage:responseObject
+                         cacheIdentifier:pathToNetworkImage
+                             displaySize:displaySize
+                             contentMode:contentMode
+                            scaleOptions:self.scaleOptions
+                          expirationDate:nil];
+
+      } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
          [self _didFailToLoadWithError:error];
-       }];
-        
-      [operation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
+      }];
+
+      [requestOperation setDownloadProgressBlock:^(NSUInteger bytesRead, long long totalBytesRead, long long totalBytesExpectedToRead) {
           if ([self.delegate respondsToSelector:@selector(networkImageView:readBytes:totalBytes:)]) {
               [self.delegate networkImageView:self readBytes:totalBytesRead totalBytes:totalBytesExpectedToRead];
           }
       }];
 
-      // We handle image scaling ourselves in the image processing method, so we need to disable
-      // AFNetworking from doing so as well.
-      operation.imageScale = 1;
-
-      self.operation = operation;
+      self.operation = requestOperation;
 
       [self _didStartLoading];
-      [self.networkOperationQueue addOperation:operation];
+      [self.networkOperationQueue addOperation:requestOperation];
     }
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setNetworkImageOperation:(NIOperation<NINetworkImageOperation> *)operation forDisplaySize:(CGSize)displaySize contentMode:(UIViewContentMode)contentMode cropRect:(CGRect)cropRect {
   [self cancelOperation];
 
@@ -470,22 +397,15 @@
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)prepareForReuse {
   [self cancelOperation];
 
   [self setImage:self.initialImage];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark Properties
+#pragma mark - Properties
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setInitialImage:(UIImage *)initialImage {
   if (_initialImage != initialImage) {
     // Only update the displayed image if we're currently showing the old initial image.
@@ -498,14 +418,10 @@
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)isLoading {
   return [self.operation isExecuting];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setNetworkOperationQueue:(NSOperationQueue *)queue {
   // Don't allow a nil network operation queue.
   NIDASSERT(nil != queue);
@@ -514,7 +430,6 @@
   }
   _networkOperationQueue = queue;
 }
-
 
 @end
 

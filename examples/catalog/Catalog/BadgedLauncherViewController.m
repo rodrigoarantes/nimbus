@@ -53,12 +53,11 @@
 //
 
 @interface BadgedLauncherViewController () <NILauncherViewModelDelegate>
-@property (nonatomic, readwrite, retain) NILauncherViewModel* model;
+@property (nonatomic, retain) NILauncherViewModel* model;
 @end
 
 @implementation BadgedLauncherViewController
 
-@synthesize model = _model;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
@@ -98,7 +97,12 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  
+
+  // iOS 7-only.
+  if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+  }
+
   self.view.backgroundColor = [UIColor underPageBackgroundColor];
 
   self.launcherView.dataSource = self.model;

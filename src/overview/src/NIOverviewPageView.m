@@ -1,5 +1,5 @@
 //
-// Copyright 2011 Jeff Verkoeyen
+// Copyright 2011-2014 Jeff Verkoeyen
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #import "NIDeviceInfo.h"
 #import "NIOverviewGraphView.h"
 #import "NIOverviewLogger.h"
+#import "NimbusCore.h"
 #import <QuartzCore/QuartzCore.h>
 
 #if !defined(__has_feature) || !__has_feature(objc_arc)
@@ -37,41 +38,31 @@ static const CGFloat kGraphRightMargin = 5;
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewPageView
 
-@synthesize pageTitle = _pageTitle;
-@synthesize titleLabel = _titleLabel;
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (void)initialize {
   kPagePadding = UIEdgeInsetsMake(5, 5, 10, 5);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (NIOverviewPageView *)page {
   return [[[self class] alloc] initWithFrame:CGRectZero];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UILabel *)label {
   UILabel* label = [[UILabel alloc] init];
   label.backgroundColor = [UIColor clearColor];
   label.font = [UIFont boldSystemFontOfSize:12];
   label.textColor = [UIColor whiteColor];
-  label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5f];
-  label.shadowOffset = CGSizeMake(0, 1);
+  if (!NIIsTintColorGloballySupported()) {
+    label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5f];
+    label.shadowOffset = CGSizeMake(0, 1);
+  }
 
   return label;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.clipsToBounds = YES;
@@ -85,8 +76,6 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   [super layoutSubviews];
 
@@ -97,8 +86,6 @@ static const CGFloat kGraphRightMargin = 5;
   _titleLabel.frame = frame;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setPageTitle:(NSString *)pageTitle {
   if (_pageTitle != pageTitle) {
     _pageTitle = [pageTitle copy];
@@ -108,27 +95,17 @@ static const CGFloat kGraphRightMargin = 5;
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)update {
   // No-op.
 }
 
-
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewGraphPageView
 
-@synthesize label1 = _label1;
-@synthesize label2 = _label2;
-@synthesize graphView = _graphView;
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Memory", @"Overview Page Title: Memory");
@@ -145,8 +122,6 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   [super layoutSubviews];
 
@@ -179,60 +154,41 @@ static const CGFloat kGraphRightMargin = 5;
                                 remainingContentWidth, contentHeight);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)update {
   [_graphView setNeedsDisplay];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NIOverviewGraphViewDataSource
+#pragma mark - NIOverviewGraphViewDataSource
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)graphViewXRange:(NIOverviewGraphView *)graphView {
-  NILinkedList* deviceLogs = [[NIOverview logger] deviceLogs];
+  NSMutableOrderedSet* deviceLogs = [[NIOverview logger] deviceLogs];
   NIOverviewLogEntry* firstEntry = [deviceLogs firstObject];
   NIOverviewLogEntry* lastEntry = [deviceLogs lastObject];
   NSTimeInterval interval = [lastEntry.timestamp timeIntervalSinceDate:firstEntry.timestamp];
   return (CGFloat)interval;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)graphViewYRange:(NIOverviewGraphView *)graphView {
   return 0;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetPointIterator {
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)nextPointInGraphView: (NIOverviewGraphView *)graphView
                        point: (CGPoint *)point {
   return NO;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSDate *)initialTimestamp {
   return nil;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetEventIterator {
   _eventEnumerator = [[[NIOverview logger] eventLogs] objectEnumerator];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)nextEventInGraphView: (NIOverviewGraphView *)graphView
                       xValue: (CGFloat *)xValue
                        color: (UIColor **)color {
@@ -251,17 +207,12 @@ static const CGFloat kGraphRightMargin = 5;
   return nil != entry;
 }
 
-
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewMemoryPageView
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Memory", @"Overview Page Title: Memory");
@@ -276,8 +227,6 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)update {
   [super update];
 
@@ -294,23 +243,16 @@ static const CGFloat kGraphRightMargin = 5;
   [self setNeedsLayout];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)didTap:(UIGestureRecognizer *)gesture {
   // Simulate low memory warning while tapping on NIOverviewMemoryPageView
   [NIDeviceInfo simulateLowMemoryWarning];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NIOverviewGraphViewDataSource
+#pragma mark - NIOverviewGraphViewDataSource
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)graphViewYRange:(NIOverviewGraphView *)graphView {
-  NILinkedList* deviceLogs = [[NIOverview logger] deviceLogs];
+  NSMutableOrderedSet* deviceLogs = [[NIOverview logger] deviceLogs];
   if ([deviceLogs count] == 0) {
     return 0;
   }
@@ -326,22 +268,16 @@ static const CGFloat kGraphRightMargin = 5;
   return (CGFloat)((double)range / 1024.0 / 1024.0);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetPointIterator {
   _enumerator = [[[NIOverview logger] deviceLogs] objectEnumerator];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSDate *)initialTimestamp {
-  NILinkedList* deviceLogs = [[NIOverview logger] deviceLogs];
+  NSMutableOrderedSet* deviceLogs = [[NIOverview logger] deviceLogs];
   NIOverviewLogEntry* firstEntry = [deviceLogs firstObject];
   return firstEntry.timestamp;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)nextPointInGraphView: (NIOverviewGraphView *)graphView
                        point: (CGPoint *)point {
   NIOverviewDeviceLogEntry* entry = [_enumerator nextObject];
@@ -354,17 +290,12 @@ static const CGFloat kGraphRightMargin = 5;
   return nil != entry;
 }
 
-
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewDiskPageView
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Storage", @"Overview Page Title: Storage");
@@ -374,8 +305,6 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)update {
   [super update];
 
@@ -392,16 +321,11 @@ static const CGFloat kGraphRightMargin = 5;
   [self setNeedsLayout];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NIOverviewGraphViewDataSource
+#pragma mark - NIOverviewGraphViewDataSource
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)graphViewYRange:(NIOverviewGraphView *)graphView {
-  NILinkedList* deviceLogs = [[NIOverview logger] deviceLogs];
+  NSMutableOrderedSet* deviceLogs = [[NIOverview logger] deviceLogs];
   if ([deviceLogs count] == 0) {
     return 0;
   }
@@ -417,22 +341,16 @@ static const CGFloat kGraphRightMargin = 5;
   return (CGFloat)((double)range / 1024.0 / 1024.0);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetPointIterator {
   _enumerator = [[[NIOverview logger] deviceLogs] objectEnumerator];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSDate *)initialTimestamp {
-  NILinkedList* deviceLogs = [[NIOverview logger] deviceLogs];
+  NSMutableOrderedSet* deviceLogs = [[NIOverview logger] deviceLogs];
   NIOverviewLogEntry* firstEntry = [deviceLogs firstObject];
   return firstEntry.timestamp;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)nextPointInGraphView: (NIOverviewGraphView *)graphView
                        point: (CGPoint *)point {
   NIOverviewDeviceLogEntry* entry = [_enumerator nextObject];
@@ -445,30 +363,25 @@ static const CGFloat kGraphRightMargin = 5;
   return nil != entry;
 }
 
-
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewConsoleLogPageView
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UILabel *)label {
   UILabel* label = [[UILabel alloc] init];
 
   label.font = [UIFont boldSystemFontOfSize:11];
   label.textColor = [UIColor whiteColor];
-  label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5f];
-  label.shadowOffset = CGSizeMake(0, 1);
+  if (!NIIsTintColorGloballySupported()) {
+    label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5f];
+    label.shadowOffset = CGSizeMake(0, 1);
+  }
   label.backgroundColor = [UIColor clearColor];
   label.lineBreakMode = NSLineBreakByWordWrapping;
   label.numberOfLines = 0;
@@ -476,8 +389,6 @@ static const CGFloat kGraphRightMargin = 5;
   return label;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Logs", @"Overview Page Title: Logs");
@@ -504,8 +415,6 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)contentSizeChanged {
   BOOL isBottomNearby = NO;
   if (_logScrollView.contentOffset.y + _logScrollView.bounds.size.height
@@ -538,16 +447,12 @@ static const CGFloat kGraphRightMargin = 5;
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setFrame:(CGRect)frame {
   [super setFrame:frame];
 
   [self contentSizeChanged];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   [super layoutSubviews];
 
@@ -559,8 +464,6 @@ static const CGFloat kGraphRightMargin = 5;
   self.titleLabel.frame = labelFrame;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)didAddLog:(NSNotification *)notification {
   NIOverviewConsoleLogEntry* entry = [[notification userInfo] objectForKey:@"entry"];
 
@@ -584,24 +487,21 @@ static const CGFloat kGraphRightMargin = 5;
   [self contentSizeChanged];
 }
 
-
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewMaxLogLevelPageView
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (UILabel *)label {
   UILabel* label = [[UILabel alloc] init];
 
   label.font = [UIFont boldSystemFontOfSize:11];
   label.textColor = [UIColor whiteColor];
-  label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5f];
-  label.shadowOffset = CGSizeMake(0, 1);
+  if (!NIIsTintColorGloballySupported()) {
+    label.shadowColor = [UIColor colorWithWhite:0 alpha:0.5f];
+    label.shadowOffset = CGSizeMake(0, 1);
+  }
   label.backgroundColor = [UIColor clearColor];
   label.lineBreakMode = NSLineBreakByWordWrapping;
   label.numberOfLines = 0;
@@ -609,8 +509,6 @@ static const CGFloat kGraphRightMargin = 5;
   return label;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)updateLabels {
   _warningLogLevelLabel.textColor = [_warningLogLevelLabel.textColor colorWithAlphaComponent:
                                      (NIMaxLogLevel >= NILOGLEVEL_WARNING) ? 1 : 0.6f];
@@ -618,8 +516,6 @@ static const CGFloat kGraphRightMargin = 5;
                                   (NIMaxLogLevel >= NILOGLEVEL_INFO) ? 1 : 0.6f];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Max Log Level", @"Overview Page Title: Max Log Level");
@@ -653,8 +549,6 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutSubviews {
   [super layoutSubviews];
 
@@ -686,8 +580,6 @@ static const CGFloat kGraphRightMargin = 5;
                                         _infoLogLevelLabel.frame.size.height);
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)didChangeSliderValue:(UISlider *)slider {
   slider.value = roundf(slider.value);
   NIMaxLogLevel = lround(slider.value);
@@ -695,62 +587,43 @@ static const CGFloat kGraphRightMargin = 5;
   [self updateLabels];
 }
 
-
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface NIOverviewMemoryCacheEntry : NSObject
-@property (nonatomic, readwrite, retain) NSDate* timestamp;
-@property (nonatomic, readwrite, assign) NSUInteger numberOfObjects;
+@property (nonatomic, retain) NSDate* timestamp;
+@property (nonatomic, assign) NSUInteger numberOfObjects;
 @end
 @implementation NIOverviewMemoryCacheEntry
-@synthesize timestamp;
-@synthesize numberOfObjects;
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface NIOverviewImageMemoryCacheEntry : NIOverviewMemoryCacheEntry
-@property (nonatomic, readwrite, assign) NSUInteger numberOfPixels;
-@property (nonatomic, readwrite, assign) NSUInteger maxNumberOfPixels;
-@property (nonatomic, readwrite, assign) NSUInteger maxNumberOfPixelsUnderStress;
+@property (nonatomic, assign) NSUInteger numberOfPixels;
+@property (nonatomic, assign) NSUInteger maxNumberOfPixels;
+@property (nonatomic, assign) NSUInteger maxNumberOfPixelsUnderStress;
 @end
 @implementation NIOverviewImageMemoryCacheEntry
-@synthesize numberOfPixels;
-@synthesize maxNumberOfPixels;
-@synthesize maxNumberOfPixelsUnderStress;
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface NIOverviewMemoryCachePageView()
-@property (nonatomic, readwrite, assign) unsigned long long minValue;
-@property (nonatomic, readwrite, retain) NSEnumerator* enumerator;
-@property (nonatomic, readwrite, retain) NILinkedList* history;
+@property (nonatomic) unsigned long long minValue;
+@property (nonatomic, strong) NSEnumerator* enumerator;
+@property (nonatomic, strong) NSMutableOrderedSet* history;
 @end
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation NIOverviewMemoryCachePageView
 
-@synthesize minValue = _minValue;
-@synthesize enumerator = _enumerator;
-@synthesize history = _history;
-@synthesize cache = _cache;
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
   if ((self = [super initWithFrame:frame])) {
     self.pageTitle = NSLocalizedString(@"Memory Cache", @"Overview Page Title: Memory Cache");
     self.cache = [Nimbus imageMemoryCache];
 
-    self.history = [NILinkedList linkedList];
+    self.history = [[NSMutableOrderedSet alloc] init];
     self.graphView.dataSource = self;
 
     UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTap:)];
@@ -761,16 +634,12 @@ static const CGFloat kGraphRightMargin = 5;
   return self;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (id)pageWithCache:(NIMemoryCache *)cache {
   NIOverviewMemoryCachePageView* pageView = [[[self class] alloc] initWithFrame:CGRectZero];
   pageView.cache = cache;
   return pageView;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)update {
   [super update];
 
@@ -804,14 +673,12 @@ static const CGFloat kGraphRightMargin = 5;
 
   NSDate* cutoffDate = [NSDate dateWithTimeIntervalSinceNow:-[NIOverview logger].oldestLogAge];
   while ([[(NIOverviewMemoryCacheEntry *)self.history.firstObject timestamp] compare:cutoffDate] == NSOrderedAscending) {
-    [self.history removeFirstObject];
+    [self.history removeObjectAtIndex:0];
   }
 
   [self setNeedsLayout];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)didTap:(UIGestureRecognizer *)gesture {
   UIViewController* rootController = [UIApplication sharedApplication].keyWindow.rootViewController;
   if ([rootController respondsToSelector:@selector(pushViewController:animated:)]) {
@@ -832,14 +699,9 @@ static const CGFloat kGraphRightMargin = 5;
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NIOverviewGraphViewDataSource
+#pragma mark - NIOverviewGraphViewDataSource
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)graphViewYRange:(NIOverviewGraphView *)graphView {
   if (0 == self.history.count) {
     return 0;
@@ -870,21 +732,15 @@ static const CGFloat kGraphRightMargin = 5;
   }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetPointIterator {
   _enumerator = [self.history objectEnumerator];
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSDate *)initialTimestamp {
   NIOverviewMemoryCacheEntry* entry = self.history.firstObject;
   return entry.timestamp;
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)nextPointInGraphView: (NIOverviewGraphView *)graphView
                        point: (CGPoint *)point {
   NIOverviewMemoryCacheEntry* entry = [_enumerator nextObject];

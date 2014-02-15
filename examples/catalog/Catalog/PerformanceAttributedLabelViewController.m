@@ -38,14 +38,12 @@
 //
 
 @interface PerformanceAttributedLabelViewController()
-@property (nonatomic, readwrite, retain) NIAttributedLabel* label;
-@property (nonatomic, readwrite, retain) UIScrollView* scrollView;
+@property (nonatomic, retain) NIAttributedLabel* label;
+@property (nonatomic, retain) UIScrollView* scrollView;
 @end
 
 @implementation PerformanceAttributedLabelViewController
 
-@synthesize label = _label;
-@synthesize scrollView = _scrollView;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -63,7 +61,9 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  
+
+  self.view.backgroundColor = [UIColor whiteColor];
+
   self.label = [[NIAttributedLabel alloc] initWithFrame:CGRectZero];
   self.label.numberOfLines = 0;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < NIIOS_6_0

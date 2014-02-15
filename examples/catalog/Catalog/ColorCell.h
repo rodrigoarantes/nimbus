@@ -1,5 +1,5 @@
 //
-// Copyright 2011 Jeff Verkoeyen
+// Copyright 2011-2014 Jeff Verkoeyen
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
 // limitations under the License.
 //
 
-#import "NIPageView.h"
+#import "NimbusCollections.h"
 
-#import "NimbusCore.h"
+@interface Color : NSObject <NICollectionViewCellObject>
++ (instancetype)colorWithColor:(UIColor *)color;
+@property (nonatomic, strong) UIColor* color;
+@end
 
-#if !defined(__has_feature) || !__has_feature(objc_arc)
-#error "Nimbus requires ARC support."
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-@implementation NIPageView
-@synthesize pageIndex = _pageIndex;
+@interface ColorCell : UICollectionViewCell <NICollectionViewCell>
 @end
